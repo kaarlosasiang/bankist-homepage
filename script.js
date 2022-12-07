@@ -180,7 +180,6 @@ nav.addEventListener('mouseout', handleHover.bind(1));
 //   console.log('Nav', e.target, e.currentTarget);
 // });
 
-
 const navHeight = nav.getBoundingClientRect().height;
 
 const stickyNav = function (entries) {
@@ -198,6 +197,25 @@ const stickyNav = function (entries) {
 const headerObserver = new IntersectionObserver(stickyNav, {
   root: null,
   threshold: 0,
-  rootMargin:`-${navHeight}px`
+  rootMargin: `-${navHeight}px`,
 });
 headerObserver.observe(header);
+
+
+// Reveal SEction
+const allSections = document.querySelectorAll('.section');
+const revealSection = function (entries, observer) {
+  const [entry] = entries;
+  console.log(entry);
+  if (!entry.isIntersecting) return;
+  entry.target.classList.remove('section--hidden');
+};
+const sectionObserver = new IntersectionObserver(revealSection, {
+  root: null,
+  threshold: 0.15,
+});
+
+allSections.forEach(section => {
+  sectionObserver.observe(section);
+  section.classList.add('section--hidden');
+});
