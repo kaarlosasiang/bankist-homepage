@@ -42,9 +42,6 @@ document.addEventListener('keydown', function (e) {
 
 btnScrollTo.addEventListener('click', function (e) {
   const s1coords = section1.getBoundingClientRect();
-  // console.log(s1coords);
-
-  // console.log(e.target.getBoundingClientRect());
 
   console.log('Current scroll (X/Y):', window.pageXOffset, window.pageYOffset);
   console.log();
@@ -63,16 +60,6 @@ btnScrollTo.addEventListener('click', function (e) {
   // Smooth Scrolling the modern way but only support modern browsers
   section1.scrollIntoView({ behavior: 'smooth' });
 });
-
-// Page Navigation
-
-// document.querySelectorAll('.nav__link').forEach(el => {
-//   el.addEventListener("click", function(e){
-//     e.preventDefault();
-//     const id = this.getAttribute("href");
-//     console.log(id);
-//   })
-// });
 
 document.querySelector('.nav__links').addEventListener('click', function (e) {
   // console.log(e.target);
@@ -119,67 +106,6 @@ const handleHover = function (e) {
 nav.addEventListener('mouseover', handleHover.bind(0.5));
 nav.addEventListener('mouseout', handleHover.bind(1));
 
-// const initialCoords = section1.getBoundingClientRect();
-// console.log(initialCoords);
-// // Sticky Navigation
-// window.addEventListener('scroll', function () {
-//   if (window.scrollY >= initialCoords.top) {
-//     nav.classList.add('sticky');
-//   } else {
-//     nav.classList.remove('sticky');
-//   }
-// });
-
-// const message = document.createElement('div');
-// message.classList.add('cookie-message');
-
-// message.innerHTML = `We use cookies for improved functionality and analytics. <button class="btn btn--close-cookie">Got it!</button>`;
-
-// header.prepend(message);
-// header.append(message.cloneNode(true));
-
-// // insert element
-// header.before(message);
-
-// // delete elements
-// document
-//   .querySelector('.btn--close-cookie')
-//   .addEventListener('click', function () {
-//     // localStorage.setItem('cookie consent', true);
-//     message.remove();
-//   });
-
-// message.style.backgroundColor = '#37383d';
-// message.style.width = '120%';
-
-// console.log(message.style.color);
-// console.log(message.style.backgroundColor);
-
-// console.log(getComputedStyle(message).color);
-// console.log(getComputedStyle(message).backgroundColor);
-
-// message.style.height = getComputedStyle(message).height + 40 + 'px';
-
-// const randomInt = (min, max) =>
-//   Math.floor(Math.random() * (max - min + 1) + min);
-// const randomColor = () =>
-//   `rgb(${randomInt(0, 255)},${randomInt(0, 255)},${randomInt(0, 255)})`;
-
-// document.querySelector('.nav__links').addEventListener('click', function (e) {
-//   this.style.backgroundColor = randomColor();
-//   console.log('Container', e.target, e.currentTarget);
-// });
-
-// document.querySelector('.nav__link').addEventListener('click', function (e) {
-//   this.style.backgroundColor = randomColor();
-//   console.log('Link', e.target, e.currentTarget);
-// });
-
-// document.querySelector('.nav').addEventListener('click', function (e) {
-//   this.style.backgroundColor = randomColor();
-//   console.log('Nav', e.target, e.currentTarget);
-// });
-
 const navHeight = nav.getBoundingClientRect().height;
 
 const stickyNav = function (entries) {
@@ -214,7 +140,7 @@ const sectionObserver = new IntersectionObserver(revealSection, {
 
 allSections.forEach(section => {
   sectionObserver.observe(section);
-  section.classList.add('section--hidden');
+  // section.classList.add('section--hidden');
 });
 
 const imgTargets = document.querySelectorAll('img[data-src]');
@@ -236,7 +162,98 @@ const loadImg = function (entries, observer) {
 const imgObserver = new IntersectionObserver(loadImg, {
   root: null,
   threshold: 0,
-  rootMargin: '200px'
+  rootMargin: '200px',
 });
 
 imgTargets.forEach(img => imgObserver.observe(img));
+
+// Slider
+const slider = function () {
+  let curSlide = 0;
+  const slides = document.querySelectorAll('.slide');
+  const slider = document.querySelector('.slider');
+  const btnLeft = document.querySelector('.slider__btn--left');
+  const btnRight = document.querySelector('.slider__btn--right');
+  let maxSlide = slides.length - 1;
+
+  const dotsContainer = document.querySelector('.dots');
+  const createDots = function () {
+    slides.forEach(function (_, i) {
+      dotsContainer.insertAdjacentHTML(
+        'beforeend',
+        `<button class="dots__dot" data-slide="${i}"></button>`
+      );
+    });
+  };
+
+  const activateDots = function (slide) {
+    document.querySelectorAll('.dots__dot').forEach(dot => {
+      dot.classList.remove('dots__dot--active');
+    });
+
+    document
+      .querySelector(`.dots__dot[data-slide="${slide}"]`)
+      .classList.add('dots__dot--active');
+  };
+
+  const goToSlide = function (slide) {
+    slides.forEach((s, i) => {
+      s.style.transform = `translateX(${100 * (i - slide)}%)`;
+    });
+  };
+
+  const init = function () {
+    createDots();
+    activateDots(curSlide);
+    // Initialize the Slider
+    goToSlide(0);
+  };
+
+  init();
+
+  // Next Slide
+  const nextSlide = function () {
+    if (curSlide === maxSlide) {
+      curSlide = 0;
+    } else {
+      curSlide++;
+    }
+    goToSlide(curSlide);
+    activateDots(curSlide);
+  };
+  const prevSlide = function () {
+    if (curSlide === 0) {
+      curSlide = maxSlide;
+    } else {
+      curSlide--;
+    }
+    goToSlide(curSlide);
+    activateDots(curSlide);
+  };
+  btnRight.addEventListener('click', nextSlide);
+  btnLeft.addEventListener('click', prevSlide);
+
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'ArrowRight') nextSlide();
+    if (e.key === 'ArrowLeft') prevSlide();
+  });
+
+  dotsContainer.addEventListener('click', function (e) {
+    if (e.target.classList.contains('dots__dot')) {
+      const { slide } = e.target.dataset;
+      goToSlide(slide);
+      activateDots(slide);
+    }
+  });
+};
+slider();
+// let i = 0;
+// setInterval(() => {
+//   if (i === maxSlide + 1) {
+//     i = 0;
+//   } else {
+//     goToSlide(i);
+//     activateDots(i)
+//     i++;
+//   }
+// }, 3000);
